@@ -1,7 +1,9 @@
 import React, { Component } from "react";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { WebView } from "react-native-webview";
 import Header from "./assets/components/Header";
-import { skyblue } from "color-name";
+import IndividualAriclePage from "./assets/components/IndividualArticlePage";
+import Arrows from "./assets/components/Arrows";
 import { data } from "./dummyData";
 import { data1 } from "./dummy1";
 
@@ -9,37 +11,40 @@ export default class App extends Component {
   state = {
     news: [],
     currentPage: 1,
-    TotalPages: 0
+    TotalPages: 0,
+    selected: false
   };
 
   componentDidMount = () => {
     this.setState({ news: data.response.results });
   };
+  handleBack = () => {
+    this.setState({ selected: null });
+  };
   render() {
+    if (this.state.selected) {
+      return (
+        <IndividualAriclePage
+          handleBack={this.handleBack}
+          webUrl={this.state.selected}
+        />
+      );
+    }
     return (
       <View style={styles.container}>
-        <Header />
+        <Header updateSearch={this.updateSearch} />
         <View style={styles.bottomContainer}>
-          <TouchableOpacity
-            onPress={() => {
-              this.handlePage("right");
-            }}
-            style={styles.arrowRight}
-          >
-            <Text>=></Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              this.handlePage("left");
-            }}
-            style={styles.arrowLeft}
-          >
-            <Text>{"<="}</Text>
-          </TouchableOpacity>
+          <Arrows handlePage={this.handlePage} />
           {this.state.news.map((story, i) => {
             return (
               <View key={i} style={styles.article}>
-                <Text style={styles.text}>{story.webTitle}</Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    this.handleSelection(story.webUrl);
+                  }}
+                >
+                  <Text style={styles.text}>{story.webTitle}</Text>
+                </TouchableOpacity>
               </View>
             );
           })}
@@ -51,18 +56,27 @@ export default class App extends Component {
     if (direction === "right") {
       this.setState(currentState => {
         return {
-          currentPage: currentState.currentPage + 1,
+          currentPage:
+            currentState.currentPage === currentState.TotalPages
+              ? currentState.currentPage
+              : currentState.currentPage + 1,
           news: data1.response.results
         };
       });
     } else if (direction === "left") {
       this.setState(currentState => {
         return {
-          currentPage: currentState.currentPage - 1,
+          currentPage:
+            currentState.currentPage === 1
+              ? currentState.currentPage
+              : currentState.currentPage - 1,
           news: data.response.results
         };
       });
     }
+  };
+  handleSelection = url => {
+    this.setState({ selected: url });
   };
 }
 
@@ -94,15 +108,5 @@ const styles = StyleSheet.create({
     marginTop: 2,
     marginBottom: 2,
     width: "80%"
-  },
-  arrowRight: {
-    position: "absolute",
-    right: 2,
-    top: "50%"
-  },
-  arrowLeft: {
-    position: "absolute",
-    left: 2,
-    top: "50%"
   }
 });
