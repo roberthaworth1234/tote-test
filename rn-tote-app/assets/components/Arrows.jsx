@@ -10,7 +10,7 @@ export default function Arrows({ handlePage }) {
         }}
         style={styles.arrowRight}
       >
-        <Text>></Text>
+        <Text>{"→"}</Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => {
@@ -18,7 +18,7 @@ export default function Arrows({ handlePage }) {
         }}
         style={styles.arrowLeft}
       >
-        <Text>{"<"}</Text>
+        <Text>{"←"}</Text>
       </TouchableOpacity>
     </React.Fragment>
   );
@@ -27,12 +27,12 @@ export default function Arrows({ handlePage }) {
 const styles = StyleSheet.create({
   arrowRight: {
     position: "absolute",
-    right: 2,
+    right: 7,
     top: "50%"
   },
   arrowLeft: {
     position: "absolute",
-    left: 2,
+    left: 7,
     top: "50%"
   }
 });

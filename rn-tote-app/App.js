@@ -1,7 +1,9 @@
 import React, { Component } from "react";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
-import { WebView } from "react-native-webview";
-import Header from "./assets/components/Header";
+import GestureRecognizer, {
+  swipeDirections
+} from "react-native-swipe-gestures";
+import Search from "./assets/components/Search";
 import IndividualAriclePage from "./assets/components/IndividualArticlePage";
 import Arrows from "./assets/components/Arrows";
 import { data } from "./dummyData";
@@ -12,16 +14,44 @@ export default class App extends Component {
     news: [],
     currentPage: 1,
     TotalPages: 0,
-    selected: false
+    selected: false,
+    swiped: null
   };
 
   componentDidMount = () => {
     this.setState({ news: data.response.results });
   };
+
+  onSwipeLeft(gestureState) {
+    this.setState({ swiped: "You swiped left!" });
+  }
+
+  onSwipeRight(gestureState) {
+    this.setState({ swiped: "You swiped right!" });
+  }
+
   handleBack = () => {
     this.setState({ selected: null });
   };
+
+  onSwipe(gestureName, gestureState) {
+    const { SWIPE_LEFT, SWIPE_RIGHT } = swipeDirections;
+    this.setState({ gestureName: gestureName });
+    switch (gestureName) {
+      case SWIPE_LEFT:
+        this.handlePage("right");
+        break;
+      case SWIPE_RIGHT:
+        this.handlePage("left");
+        break;
+    }
+  }
+
   render() {
+    const config = {
+      velocityThreshold: 0.3,
+      directionalOffsetThreshold: 80
+    };
     if (this.state.selected) {
       return (
         <IndividualAriclePage
@@ -31,25 +61,36 @@ export default class App extends Component {
       );
     }
     return (
-      <View style={styles.container}>
-        <Header updateSearch={this.updateSearch} />
-        <View style={styles.bottomContainer}>
-          <Arrows handlePage={this.handlePage} />
-          {this.state.news.map((story, i) => {
-            return (
-              <View key={i} style={styles.article}>
-                <TouchableOpacity
-                  onPress={() => {
-                    this.handleSelection(story.webUrl);
-                  }}
-                >
-                  <Text style={styles.text}>{story.webTitle}</Text>
-                </TouchableOpacity>
-              </View>
-            );
-          })}
+      <GestureRecognizer
+        onSwipe={(direction, state) => this.onSwipe(direction, state)}
+        onSwipeLeft={state => this.onSwipeLeft(state)}
+        onSwipeRight={state => this.onSwipeRight(state)}
+        config={config}
+        style={{
+          flex: 1,
+          backgroundColor: this.state.backgroundColor
+        }}
+      >
+        <View style={styles.container}>
+          <Search updateSearch={this.updateSearch} />
+          <View style={styles.bottomContainer}>
+            <Arrows handlePage={this.handlePage} />
+            {this.state.news.map((story, i) => {
+              return (
+                <View key={i} style={styles.article}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      this.handleSelection(story.webUrl);
+                    }}
+                  >
+                    <Text style={styles.text}>{story.webTitle}</Text>
+                  </TouchableOpacity>
+                </View>
+              );
+            })}
+          </View>
         </View>
-      </View>
+      </GestureRecognizer>
     );
   }
   handlePage = direction => {

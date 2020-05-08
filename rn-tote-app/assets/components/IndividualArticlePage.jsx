@@ -7,12 +7,7 @@ export default function IndividualArticlePage({ webUrl, handleBack }) {
   return (
     <React.Fragment>
       <WebView source={{ uri: webUrl }}></WebView>
-      <Button
-        title="Back"
-        onPress={() => {
-          handleBack();
-        }}
-      ></Button>
+      <Button title="Back" onPress={handleBack}></Button>
     </React.Fragment>
   );
 }
