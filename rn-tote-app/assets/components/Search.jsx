@@ -1,13 +1,28 @@
 import React, { Component } from "react";
 
-import { StyleSheet, Text, View, TextInput } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  Image,
+  TouchableOpacity
+} from "react-native";
 import { Overlay, Button } from "react-native-elements";
+import { Dimensions } from "react-native";
 import MyDatePicker from "./MyDatePicker";
 import TopicList from "./TopicList";
+import {
+  formatDates,
+  validateSearch,
+  formatText
+} from "../utils/utilityFunctions";
+import { getArticlesBySearch } from "../utils/api";
 
 export default class Search extends Component {
   state = {
-    date: "2020-04-15",
+    searchError: null,
+    date: formatDates(new Date()),
     isVisible: false,
     inputText: "",
     topics: [
@@ -72,18 +87,39 @@ export default class Search extends Component {
     const visible = this.state.isVisible;
     return (
       <View style={styles.container}>
-        <Text>Tote News</Text>
-        <Button title="Open Overlay" onPress={this.toggleOverlay} />
+        <Image style={styles.logo} source={require("../Images/logo.png")} />
+        <TouchableOpacity onPress={this.toggleOverlay}>
+          <Image
+            style={styles.searchIcon}
+            source={{
+              uri:
+                "https://img.icons8.com/pastel-glyph/64/000000/search--v2.png"
+            }}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={this.toggleOverlay}>
+          <Image
+            style={styles.aboutIcon}
+            source={{
+              uri: "https://img.icons8.com/carbon-copy/100/000000/about.png"
+            }}
+          />
+        </TouchableOpacity>
 
         <Overlay isVisible={visible} onBackdropPress={this.toggleOverlay}>
           <View>
+            <Text style={{ fontSize: 10, color: "red" }}>
+              {this.state.searchError}
+            </Text>
             <TextInput
               placeholder="Enter keyword search here"
+              placeholderStyle={{ padding: 20 }}
               style={{
                 height: 40,
-                width: "100%",
+                width: windowWidth * 0.7,
                 borderColor: "gray",
-                borderWidth: 1
+                borderWidth: 1.5,
+                borderRadius: 5
               }}
               onChangeText={text => this.onChangeText(text)}
               value={this.state.inputText}
@@ -111,21 +147,34 @@ export default class Search extends Component {
       </View>
     );
   }
+
   handleSubmit = e => {
-    console.log(
-      this.state.inputText +
-        " " +
-        this.state.selectedTopic +
-        " " +
-        this.state.date
-    );
+    const { inputText, selectedTopic, date } = this.state;
+    if (!validateSearch(inputText)) {
+      return this.setState({
+        searchError: "special characters are not allowed, try again",
+        searchBarColor: "red",
+        inputText: ""
+      });
+    } else {
+      let text = formatText(inputText);
+      this.props.handleSearchUpdate(inputText, selectedTopic, date);
+      getArticlesBySearch(
+        text,
+        selectedTopic,
+        date,
+        this.props.currentPage
+      ).then(res => {
+        return this.props.updateArticles(res);
+      });
+    }
   };
   toggleOverlay = () => {
     this.setState({ isVisible: !this.state.isVisible });
   };
   handleTopic = topic => {
     if (this.state.selectedTopicToggle && this.state.selectedTopic === topic) {
-      this.setState({ selectedTopicToggle: false });
+      this.setState({ selectedTopicToggle: false, selectedTopic: null });
     } else {
       this.setState({
         selectedTopic: topic,
@@ -134,21 +183,41 @@ export default class Search extends Component {
     }
   };
   handleDate = date => {
+    date = formatDates(date);
     this.setState({ date });
   };
 }
-
+let windowWidth = Dimensions.get("window").width;
 const styles = StyleSheet.create({
+  overlayContainer: {
+    width: windowWidth
+  },
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    flexDirection: "row",
+    backgroundColor: "#7C7A7A",
     alignItems: "center",
-    justifyContent: "center"
+    width: windowWidth,
+    justifyContent: "space-between"
   },
   pickerContainerRight: {
     alignSelf: "flex-end"
   },
   pickerContainerLeft: {
     alignSelf: "flex-start"
+  },
+  logo: {
+    marginLeft: "8%",
+    height: 65,
+    width: 65
+  },
+  searchIcon: {
+    height: 40,
+    width: 40
+  },
+  aboutIcon: {
+    marginRight: "8%",
+    height: 40,
+    width: 40
   }
 });

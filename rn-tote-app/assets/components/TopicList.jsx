@@ -9,7 +9,7 @@ export default function TopicList({
   selectedTopicToggle
 }) {
   return topics.map((topic, i) => {
-    return selectedTopicToggle && selectedTopic === topic.title ? (
+    return (
       <TouchableOpacity
         onPress={() => {
           handleTopic(topic.title);
@@ -18,7 +18,10 @@ export default function TopicList({
       >
         <ListItem
           containerStyle={{
-            backgroundColor: "green",
+            backgroundColor:
+              selectedTopicToggle && selectedTopic === topic.title
+                ? "green"
+                : "#FFF",
             marginTop: 0,
             paddingTop: 2,
             paddingBottom: 2
@@ -28,28 +31,11 @@ export default function TopicList({
             containerStyle: { width: 15, height: 15 }
           }}
           title={topic.title}
-          subtitle={"combined to search"}
-          bottomDivider
-        />
-      </TouchableOpacity>
-    ) : (
-      <TouchableOpacity
-        onPress={() => {
-          handleTopic(topic.title);
-        }}
-        key={topic.title}
-      >
-        <ListItem
-          containerStyle={{
-            marginTop: 0,
-            paddingTop: 2,
-            paddingBottom: 2
-          }}
-          leftAvatar={{
-            source: { uri: topic.url },
-            containerStyle: { width: 15, height: 15 }
-          }}
-          title={topic.title}
+          subtitle={
+            selectedTopicToggle && selectedTopic === topic.title
+              ? "combined to search"
+              : null
+          }
           bottomDivider
         />
       </TouchableOpacity>

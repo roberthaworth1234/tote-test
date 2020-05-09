@@ -6,20 +6,30 @@ import GestureRecognizer, {
 import Search from "./assets/components/Search";
 import IndividualAriclePage from "./assets/components/IndividualArticlePage";
 import Arrows from "./assets/components/Arrows";
-import { data } from "./dummyData";
-import { data1 } from "./dummy1";
+import { getArticlesBySearch } from "./assets/utils/api";
+import { formatDates } from "./assets/utils/utilityFunctions";
 
 export default class App extends Component {
   state = {
     news: [],
     currentPage: 1,
     TotalPages: 0,
+    date: formatDates(new Date()),
+    lastSearchText: "",
+    lastSearchTopic: null,
     selected: false,
     swiped: null
   };
 
   componentDidMount = () => {
-    this.setState({ news: data.response.results });
+    getArticlesBySearch(
+      null,
+      null,
+      this.state.date,
+      this.state.currentPage
+    ).then(res => {
+      this.updateArticles(res);
+    });
   };
 
   onSwipeLeft(gestureState) {
@@ -29,6 +39,14 @@ export default class App extends Component {
   onSwipeRight(gestureState) {
     this.setState({ swiped: "You swiped right!" });
   }
+  handleSearchUpdate = (lastSearchText, lastSearchTopic, date) => {
+    this.setState({
+      lastSearchText,
+      lastSearchTopic,
+      date,
+      currentPage: 0
+    });
+  };
 
   handleBack = () => {
     this.setState({ selected: null });
@@ -72,7 +90,11 @@ export default class App extends Component {
         }}
       >
         <View style={styles.container}>
-          <Search updateSearch={this.updateSearch} />
+          <Search
+            handleSearchUpdate={this.handleSearchUpdate}
+            currentPage={this.state.currentPage}
+            updateArticles={this.updateArticles}
+          />
           <View style={styles.bottomContainer}>
             <Arrows handlePage={this.handlePage} />
             {this.state.news.map((story, i) => {
@@ -94,30 +116,57 @@ export default class App extends Component {
     );
   }
   handlePage = direction => {
+    const { lastSearchText, lastSearchTopic, date, currentPage } = this.state;
     if (direction === "right") {
-      this.setState(currentState => {
-        return {
-          currentPage:
-            currentState.currentPage === currentState.TotalPages
-              ? currentState.currentPage
-              : currentState.currentPage + 1,
-          news: data1.response.results
-        };
+      getArticlesBySearch(
+        lastSearchText,
+        lastSearchTopic,
+        date,
+        currentPage + 1
+      ).then(data => {
+        this.setState(currentState => {
+          return {
+            currentPage:
+              currentState.currentPage === currentState.TotalPages
+                ? currentState.currentPage
+                : currentState.currentPage + 1,
+            news:
+              currentState.currentPage === currentState.TotalPages
+                ? currentState.news
+                : data.response.results
+          };
+        });
       });
     } else if (direction === "left") {
-      this.setState(currentState => {
-        return {
-          currentPage:
-            currentState.currentPage === 1
-              ? currentState.currentPage
-              : currentState.currentPage - 1,
-          news: data.response.results
-        };
+      getArticlesBySearch(
+        lastSearchText,
+        lastSearchTopic,
+        date,
+        currentPage - 1
+      ).then(data => {
+        this.setState(currentState => {
+          return {
+            currentPage:
+              currentState.currentPage === 1
+                ? currentState.currentPage
+                : currentState.currentPage - 1,
+            news:
+              currentState.currentPage === 1
+                ? currentState.news
+                : data.response.results
+          };
+        });
       });
     }
   };
   handleSelection = url => {
     this.setState({ selected: url });
+  };
+  updateArticles = data => {
+    this.setState({
+      news: data.response.results,
+      TotalPages: data.response.pages
+    });
   };
 }
 
@@ -131,12 +180,12 @@ const styles = StyleSheet.create({
   bottomContainer: {
     flex: 6,
     width: "100%",
-    backgroundColor: "#746D75",
+    backgroundColor: "#FBF9F9",
     alignItems: "center",
     justifyContent: "center"
   },
   text: {
-    fontSize: 12,
+    fontSize: 16,
     paddingHorizontal: 15,
     color: "#FFF"
   },
@@ -144,7 +193,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "skyblue",
+    backgroundColor: "#A40A07",
     borderRadius: 10,
     marginTop: 2,
     marginBottom: 2,
