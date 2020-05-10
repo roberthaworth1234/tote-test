@@ -20,7 +20,7 @@ import { getArticlesBySearch } from "../utils/api";
 export default class Search extends Component {
   state = {
     searchError: null,
-    date: this.props.date,
+    date: formatDates(new Date()),
     searchIsVisible: false,
     aboutIsVisible: false,
     inputText: "",
@@ -99,13 +99,7 @@ export default class Search extends Component {
             <TextInput
               placeholder="Enter keyword search here"
               placeholderStyle={{ padding: 20 }}
-              style={{
-                height: 40,
-                width: windowWidth * 0.8,
-                borderColor: "gray",
-                borderWidth: 1.5,
-                borderRadius: 5
-              }}
+              style={styles.textInput}
               onChangeText={text => this.onChangeText(text)}
               value={this.state.inputText}
             />
@@ -148,7 +142,7 @@ export default class Search extends Component {
       getArticlesBySearch(text, selectedTopic, date, 1).then(res => {
         return this.props.updateArticles(res);
       });
-      this.setState({ inputText: "", isVisible: false });
+      this.setState({ inputText: "", searchIsVisible: false });
     }
   };
 
@@ -207,5 +201,12 @@ const styles = StyleSheet.create({
     fontSize: 8,
     color: "grey",
     marginBottom: 5
+  },
+  textInput: {
+    height: 40,
+    width: windowWidth * 0.8,
+    borderColor: "gray",
+    borderWidth: 1.5,
+    borderRadius: 5
   }
 });

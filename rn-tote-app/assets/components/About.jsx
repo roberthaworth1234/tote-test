@@ -13,13 +13,13 @@ export default function About() {
     <View style={styles.container}>
       <Text style={styles.header}>About Guard News Search</Text>
       <Text style={styles.text}>
-        Guard utilises the Guardian new API and provides a search function to
+        Guard utilises the Guardian news API and provides a search function to
         let you swipe through pages of data and connects you to the individual
         article web page.
       </Text>
       <Text style={styles.text}>
         You can search keywords, select a section / topic and the date search
-        will provide the newest information from the date selected.
+        will provide the newest articles before the date selected.
       </Text>
       <TouchableOpacity
         onPress={() =>
@@ -28,7 +28,7 @@ export default function About() {
       >
         <Text style={styles.text}>
           This application used icons8 for the all icons used. Click HERE to
-          copy link to clipboard{" "}
+          copy the link to clipboard{" "}
         </Text>
       </TouchableOpacity>
     </View>

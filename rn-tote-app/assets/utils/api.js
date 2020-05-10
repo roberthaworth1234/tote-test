@@ -1,4 +1,4 @@
-import apiKey from "../../api-key";
+const apiKey = require("../../api-key");
 
 const baseURL = "https://content.guardianapis.com/search?";
 
@@ -10,7 +10,12 @@ export const getArticlesBySearch = (keywords, topic, date, page) => {
   if (topic) {
     datePageURL = datePageURL + "&section=" + topic.toLowerCase();
   }
-  return fetch(`${baseURL}${datePageURL}&api-key=${apiKey || "test"}`)
+  console.log(`${baseURL}${datePageURL}&api-key=${apiKey}`);
+  return fetch(
+    `${baseURL}${datePageURL}&api-key=${
+      typeof apiKey !== "string" ? "test" : apiKey
+    }`
+  )
     .then(response => response.json())
     .then(data => {
       return data;

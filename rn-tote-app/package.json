@@ -7,7 +7,9 @@
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "test": "mocha spec/utils.spec.js",
-    "start": "expo start",
+    "start-ios": "node api-key-config.js && npm run ios",
+    "start-android": "node api-key-config.js && npm run android",
+    "start-web": "node api-key-config.js && npm run web",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
