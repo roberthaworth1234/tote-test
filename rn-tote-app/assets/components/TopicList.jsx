@@ -18,10 +18,11 @@ export default function TopicList({
       >
         <ListItem
           containerStyle={{
+            borderRadius: 10,
             backgroundColor:
               selectedTopicToggle && selectedTopic === topic.title
                 ? "green"
-                : "#FFF",
+                : "lightgrey",
             marginTop: 0,
             paddingTop: 2,
             paddingBottom: 2

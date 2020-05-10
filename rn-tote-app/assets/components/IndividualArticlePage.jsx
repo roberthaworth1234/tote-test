@@ -1,5 +1,4 @@
 import React from "react";
-import { TouchableOpacity, View, Text } from "react-native";
 import { Button } from "react-native-elements";
 import WebView from "react-native-webview";
 

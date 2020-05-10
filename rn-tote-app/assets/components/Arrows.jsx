@@ -10,7 +10,7 @@ export default function Arrows({ handlePage }) {
         }}
         style={styles.arrowRight}
       >
-        <Text>{"→"}</Text>
+        <Text style={{ color: "white" }}>{"→"}</Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => {
@@ -18,7 +18,7 @@ export default function Arrows({ handlePage }) {
         }}
         style={styles.arrowLeft}
       >
-        <Text>{"←"}</Text>
+        <Text style={{ color: "white" }}>{"←"}</Text>
       </TouchableOpacity>
     </React.Fragment>
   );

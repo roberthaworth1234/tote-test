@@ -1,4 +1,9 @@
 {
+  "rnpm": {
+    "assets": [
+      "./assets/fonts/"
+    ]
+  },
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "test": "mocha spec/utils.spec.js",

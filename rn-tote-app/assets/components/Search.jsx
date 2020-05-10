@@ -1,29 +1,28 @@
 import React, { Component } from "react";
 
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  Image,
-  TouchableOpacity
-} from "react-native";
+import { StyleSheet, Text, View, TextInput } from "react-native";
 import { Overlay, Button } from "react-native-elements";
 import { Dimensions } from "react-native";
+
 import MyDatePicker from "./MyDatePicker";
 import TopicList from "./TopicList";
+import Header from "./Header";
+import About from "./About";
+
 import {
   formatDates,
   validateSearch,
   formatText
 } from "../utils/utilityFunctions";
+
 import { getArticlesBySearch } from "../utils/api";
 
 export default class Search extends Component {
   state = {
     searchError: null,
-    date: formatDates(new Date()),
-    isVisible: false,
+    date: this.props.date,
+    searchIsVisible: false,
+    aboutIsVisible: false,
     inputText: "",
     topics: [
       {
@@ -43,7 +42,7 @@ export default class Search extends Component {
         url: "https://img.icons8.com/ios-glyphs/30/000000/football2.png"
       },
       {
-        title: "Tech",
+        title: "Technology",
         url: "https://img.icons8.com/ios-glyphs/30/000000/macbook.png"
       },
       {
@@ -76,37 +75,23 @@ export default class Search extends Component {
       }
     ],
     selectedTopic: null,
-    dateFrom: null,
-    backgroundColor: "green",
     selectedTopicToggle: false
   };
-  onChangeText = text => {
-    this.setState({ inputText: text });
-  };
+
   render() {
-    const visible = this.state.isVisible;
+    const { aboutIsVisible, searchIsVisible } = this.state;
+
     return (
       <View style={styles.container}>
-        <Image style={styles.logo} source={require("../Images/logo.png")} />
-        <TouchableOpacity onPress={this.toggleOverlay}>
-          <Image
-            style={styles.searchIcon}
-            source={{
-              uri:
-                "https://img.icons8.com/pastel-glyph/64/000000/search--v2.png"
-            }}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={this.toggleOverlay}>
-          <Image
-            style={styles.aboutIcon}
-            source={{
-              uri: "https://img.icons8.com/carbon-copy/100/000000/about.png"
-            }}
-          />
-        </TouchableOpacity>
+        <Header toggleOverlay={this.toggleOverlay} />
 
-        <Overlay isVisible={visible} onBackdropPress={this.toggleOverlay}>
+        <Overlay
+          overlayStyle={{ backgroundColor: "lightgrey" }}
+          isVisible={searchIsVisible}
+          onBackdropPress={() => {
+            this.toggleOverlay("search");
+          }}
+        >
           <View>
             <Text style={{ fontSize: 10, color: "red" }}>
               {this.state.searchError}
@@ -116,7 +101,7 @@ export default class Search extends Component {
               placeholderStyle={{ padding: 20 }}
               style={{
                 height: 40,
-                width: windowWidth * 0.7,
+                width: windowWidth * 0.8,
                 borderColor: "gray",
                 borderWidth: 1.5,
                 borderRadius: 5
@@ -125,14 +110,7 @@ export default class Search extends Component {
               value={this.state.inputText}
             />
             <Button title="submit" onPress={this.handleSubmit}></Button>
-            <Text
-              style={{
-                fontSize: 8,
-                opacity: 0.75,
-                color: "gray",
-                marginBottom: 5
-              }}
-            >
+            <Text style={styles.refineText}>
               You can select a topic and date to refine your keyword search
             </Text>
             <TopicList
@@ -144,6 +122,15 @@ export default class Search extends Component {
             <MyDatePicker date={this.state.date} handleDate={this.handleDate} />
           </View>
         </Overlay>
+        <Overlay
+          overlayStyle={{ backgroundColor: "lightgrey" }}
+          isVisible={aboutIsVisible}
+          onBackdropPress={() => {
+            this.toggleOverlay("about");
+          }}
+        >
+          <About />
+        </Overlay>
       </View>
     );
   }
@@ -153,44 +140,54 @@ export default class Search extends Component {
     if (!validateSearch(inputText)) {
       return this.setState({
         searchError: "special characters are not allowed, try again",
-        searchBarColor: "red",
         inputText: ""
       });
     } else {
       let text = formatText(inputText);
       this.props.handleSearchUpdate(inputText, selectedTopic, date);
-      getArticlesBySearch(
-        text,
-        selectedTopic,
-        date,
-        this.props.currentPage
-      ).then(res => {
+      getArticlesBySearch(text, selectedTopic, date, 1).then(res => {
         return this.props.updateArticles(res);
       });
+      this.setState({ inputText: "", isVisible: false });
     }
   };
-  toggleOverlay = () => {
-    this.setState({ isVisible: !this.state.isVisible });
-  };
+
   handleTopic = topic => {
     if (this.state.selectedTopicToggle && this.state.selectedTopic === topic) {
-      this.setState({ selectedTopicToggle: false, selectedTopic: null });
+      this.setState({
+        selectedTopicToggle: false,
+        selectedTopic: null
+      });
     } else {
       this.setState({
-        selectedTopic: topic,
-        selectedTopicToggle: true
+        selectedTopicToggle: true,
+        selectedTopic: topic
       });
     }
   };
+
+  toggleOverlay = overlay => {
+    overlay === "search"
+      ? this.setState({ searchIsVisible: !this.state.searchIsVisible })
+      : this.setState({ aboutIsVisible: !this.state.aboutIsVisible });
+  };
+
+  onChangeText = text => {
+    this.state.searchError
+      ? this.setState({ searchError: null, inputText: text })
+      : this.setState({ inputText: text });
+  };
+
   handleDate = date => {
     date = formatDates(date);
     this.setState({ date });
   };
 }
+
 let windowWidth = Dimensions.get("window").width;
 const styles = StyleSheet.create({
   overlayContainer: {
-    width: windowWidth
+    backgroundColor: "grey"
   },
   container: {
     flex: 1,
@@ -206,18 +203,9 @@ const styles = StyleSheet.create({
   pickerContainerLeft: {
     alignSelf: "flex-start"
   },
-  logo: {
-    marginLeft: "8%",
-    height: 65,
-    width: 65
-  },
-  searchIcon: {
-    height: 40,
-    width: 40
-  },
-  aboutIcon: {
-    marginRight: "8%",
-    height: 40,
-    width: 40
+  refineText: {
+    fontSize: 8,
+    color: "grey",
+    marginBottom: 5
   }
 });
