@@ -177,7 +177,7 @@ export default class App extends Component {
                            })}
                            <Text style={styles.text}>
                              {this.state.TotalPages === 0
-                               ? "No data for this search. Please try a new search"
+                               ? "No data for search. Please try a new search"
                                : "Page " +
                                  this.state.currentPage +
                                  " of " +

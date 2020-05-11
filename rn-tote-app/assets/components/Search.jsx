@@ -103,7 +103,7 @@ export default class Search extends Component {
               onChangeText={text => this.onChangeText(text)}
               value={this.state.inputText}
             />
-            <Button title="submit" onPress={this.handleSubmit}></Button>
+            <Button title="Submit" onPress={this.handleSubmit}></Button>
             <Text style={styles.refineText}>
               You can select a topic and date to refine your keyword search
             </Text>
