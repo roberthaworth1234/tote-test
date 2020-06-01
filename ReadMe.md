@@ -1,6 +1,6 @@
-# Tote Test App
+# Guardian News App
 
-This is my Tote Test App. It uses the Guardian news api and provides search functionality where you can then swipe through pages of data and connect to the individual articles. 
+It uses the Guardian news api and provides search functionality where you can then swipe through pages of data and connect to the individual articles.
 Please have a look through and any feedback is welcome.
 
 ## Getting Started
