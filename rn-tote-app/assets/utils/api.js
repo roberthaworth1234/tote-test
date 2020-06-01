@@ -10,7 +10,6 @@ export const getArticlesBySearch = (keywords, topic, date, page) => {
   if (topic) {
     datePageURL = datePageURL + "&section=" + topic.toLowerCase();
   }
-  console.log(`${baseURL}${datePageURL}&api-key=${apiKey}`);
   return fetch(
     `${baseURL}${datePageURL}&api-key=${
       typeof apiKey !== "string" ? "test" : apiKey
